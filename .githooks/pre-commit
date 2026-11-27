@@ -1,0 +1,16 @@
+#!/bin/sh
+# Refuses the commit if gitleaks finds a secret or private detail in the staged changes.
+
+set -e
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-commit: gitleaks is not installed, refusing to commit unscanned changes." >&2
+  exit 1
+fi
+
+config=.gitleaks.toml
+if [ -f .gitleaks.local.toml ]; then
+  config=.gitleaks.local.toml
+fi
+
+exec gitleaks git --pre-commit --staged --redact --no-banner --config "$config"

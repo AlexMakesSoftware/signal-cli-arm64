@@ -1,0 +1,42 @@
+# gitleaks's built-in secret rules, plus personal details that must never reach this public repo.
+# Rules naming specific private values belong in .gitleaks.local.toml, which is never committed.
+
+title = "signal-cli-arm64"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "phone-number"
+description = "Phone number in international format"
+regex = '''\+[1-9]\d{9,14}\b'''
+
+[[rules]]
+id = "uk-mobile-number"
+description = "UK mobile number"
+regex = '''\b07\d{3}\s?\d{6}\b'''
+
+[[rules]]
+id = "email-address"
+description = "Email address"
+regex = '''[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}'''
+[[rules.allowlists]]
+regexes = [
+  '''@users\.noreply\.github\.com$''',
+  '''^noreply@anthropic\.com$''',
+  '''^git@github\.com$''',
+]
+
+[[rules]]
+id = "home-path"
+description = "Path inside someone's home folder"
+regex = '''/home/([a-z_][a-z0-9_-]*)'''
+# Reporting only the username dodges gitleaks's built-in allowlist, which ignores anything shaped like /home/...
+secretGroup = 1
+[[rules.allowlists]]
+regexes = ['''^runner$''']
+
+[[rules]]
+id = "private-ip-address"
+description = "Home-network (RFC 1918) IP address"
+regex = '''\b(?:10\.\d{1,3}|192\.168|172\.(?:1[6-9]|2\d|3[01]))\.\d{1,3}\.\d{1,3}\b'''

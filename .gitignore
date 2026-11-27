@@ -1,0 +1,27 @@
+# Secrets and local config: never commit
+.env
+.env.*
+*.local
+*.local.*
+config.local*
+secrets/
+
+# Anything signal-cli writes (keys, account data)
+signal-cli-data/
+.local/share/signal-cli/
+data/
+
+# Build output and downloads
+target/
+build/
+dist/
+*.tar.gz
+*.zip
+*.jar
+*.so
+
+# Editors and OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
