@@ -27,6 +27,9 @@ env:
   RUSTUP_INIT_SHA256: e3853c5a252fca15252d07cb23a1bdd9377a8c6f3efa01531109281ae47f841c
   # How long signal-cli gets to print a device-link URI, proving the native library loaded and works.
   LINK_CHECK_SECONDS: 60
+  # Releases kept, newest by version number. signal-cli older than about three months may stop working with
+  # Signal, so older builds are a trap; installs only ever roll back one version. Their attestations stay.
+  RELEASES_KEPT: 5
 
 jobs:
   check:
@@ -297,3 +300,14 @@ jobs:
             --title "signal-cli ${SIGNAL_CLI_VERSION} for linux-aarch64" \
             --notes-file notes.md \
             dist/*
+
+      - name: Delete releases older than the newest ${{ env.RELEASES_KEPT }}
+        run: |
+          gh release list --repo "$GITHUB_REPOSITORY" --limit 200 --json tagName --jq '.[].tagName' \
+            | { grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' || true; } \
+            | sort -V \
+            | head -n -"$RELEASES_KEPT" \
+            | while read -r tag; do
+                echo "Deleting old release $tag"
+                gh release delete "$tag" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag
+              done
